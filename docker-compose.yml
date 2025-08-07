@@ -1,0 +1,19 @@
+version: "3.8"
+services:
+  client:
+    build: ./client
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./client:/app
+    depends_on:
+      - server
+    command: npm run dev
+
+  server:
+    build: ./server
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./server:/app
+    command: node app.js
