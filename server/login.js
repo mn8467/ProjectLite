@@ -12,7 +12,7 @@ passport.use(new LocalStrategy(
     async function(username, password, done) {
         try {
             const [rows] = await promisePool.execute(
-                'SELECT user_name, password FROM users WHERE user_name = ?',
+                'SELECT user_id, user_name, password FROM users WHERE user_name = ?',
                 [username]
             );
 
@@ -27,9 +27,8 @@ passport.use(new LocalStrategy(
             if (!isMatch) {
                 return done(null, false, { message: '비밀번호가 일치하지 않습니다.' });
             }
-            // 인증 성공: user 객체를 반환합니다.
-            // 이 객체는 serializeUser로 전달됩니다.
-            return done(null, { id: user.id, username: user.user_name });
+
+            return done(null, { user_id: user.user_id, username: user.user_name });
         } catch (err) {
             return done(err);
         }
@@ -39,7 +38,7 @@ passport.use(new LocalStrategy(
 // 사용자 정보를 세션에 저장
 passport.serializeUser(function(user, cb) {
     process.nextTick(function() {
-        cb(null, { id: user.id, username: user.username });
+        cb(null, { user_id: user.user_id, username: user.username });
     });
 });
 
@@ -52,14 +51,18 @@ passport.deserializeUser(function(user, cb) {
 
 // 로그인 라우터
 login.post('/', passport.authenticate('local', {
-    failureRedirect: '/login', // 로그인 실패 시 리다이렉트 (프론트에서 처리하므로 필요 없을 수도 있습니다)
+    failureRedirect: '/login',
     failureMessage: true
 }), (req, res) => {
-    // Passport.js 인증 성공 후 이 미들웨어가 실행됩니다.
-    // 여기서 세션에 로그인 상태를 명시적으로 저장합니다.
+    // Passport.js 인증이 성공하고, req.user 객체가 생성된 후 실행됩니다.
+    // 여기서 세션에 isLoggedIn을 저장합니다.
     req.session.isLoggedIn = true;
-    req.session.save(() => {
-        // 클라이언트에 성공 응답을 보냅니다.
+    console.log('로그인 후 세션:', req.session)
+    req.session.save((err) => {
+        if (err) {
+            console.error('세션 저장 실패:', err);
+            return res.status(500).json({ success: false, message: '세션 저장에 실패했습니다.' });
+        }
         res.status(200).json({ success: true, message: '로그인 성공!' });
     });
 });

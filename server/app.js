@@ -7,11 +7,6 @@ const cors = require('cors');
 const app = express();
 const PORT = 8080;
 
-// CORS 설정: 이 부분을 다시 추가해야 합니다.
-app.use(cors({
-  origin: 'http://localhost:5173', // 허용할 프론트 주소
-  credentials: true                // 쿠키/세션 전송 허용
-}));
 
 const { promisePool } = require('./db');
 
@@ -61,6 +56,14 @@ app.use(express.urlencoded({ extended: false }));
 
 app.use(passport.initialize());
 app.use(passport.session());
+
+
+// CORS 설정: 이 부분을 다시 추가해야 합니다.
+app.use(cors({
+  origin: 'http://localhost:5173',
+  credentials: true
+}));
+
 
 // 라우터 설정
 const signupRouter = require('./signup');

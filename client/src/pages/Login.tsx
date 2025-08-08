@@ -70,10 +70,16 @@ const Login: React.FC = () => {
 
         try {
             // 서버의 /login 엔드포인트로 POST 요청을 보냅니다.
-            const response = await axios.post('http://localhost:8080/login', {
-                username,
-                password
-            });
+           const response = await axios.post(
+                  'http://localhost:8080/login',
+                  {
+                    username,
+                    password
+                  },
+                  {
+                    withCredentials: true // 🔥 추가!
+                  }
+                );
             
             // 요청 성공 시
             setMessage(response.data.message);
