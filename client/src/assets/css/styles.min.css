@@ -5,11 +5,8 @@
  * Copyright 2011-2024 The Bootstrap Authors
  * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
  */
-/* 수정 전: @import "simplebar/dist/simplebar.css"; */
-/* 수정 후: */
-@import "simplebar/dist/simplebar.min.css";
+@import "../libs/simplebar/dist/simplebar.css";
 @import "../css/icons/tabler-icons/tabler-icons.css";
-
 :root,
 [data-bs-theme=light] {
   --bs-blue: #1e4db7;

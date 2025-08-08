@@ -10,6 +10,10 @@ import App from './App.tsx'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import React from 'react'
 import Home from './Home.tsx';
+import Signup from './pages/Signup.tsx'
+import Login from './pages/Login.tsx'
+import Logout from './pages/Logout.tsx'
+
 
 createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
@@ -17,6 +21,12 @@ createRoot(document.getElementById('root')!).render(
       <Routes>
         <Route path="/home" element={<Home />} />
         <Route path="/app" element={<App />} />
+        <Route path="/signup" element={<Signup />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/logout" element={<Logout />} />
+
+
+        {/* 다른 경로도 필요에 따라 추가 가능 */}        
         {/* 필요하면 다른 경로도 추가 가능 */}
       </Routes>
     </BrowserRouter>
