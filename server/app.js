@@ -10,6 +10,8 @@ const PORT = 8080;
 
 const { promisePool } = require('./db');
 
+
+
 // MySQLStore 설정
 const sessionStore = new MySQLStore({
     clearExpired: true,
@@ -26,6 +28,12 @@ const sessionStore = new MySQLStore({
     }
 }, promisePool); // db.js의 promisePool을 직접 전달
 
+// CORS 설정: 다른 미들웨어보다 먼저 위치해야 합니다.
+app.use(cors({
+    origin: 'http://localhost:5173',
+    credentials: true
+}));
+
 // 세션 미들웨어 설정
 app.use(session({
     secret: 'your-secret-key',
@@ -37,6 +45,7 @@ app.use(session({
         maxAge: 1000 * 60 * 60 * 24 // 24시간
     }
 }));
+
 
 //세션 확인
 app.get('/check-session', (req, res) => {
