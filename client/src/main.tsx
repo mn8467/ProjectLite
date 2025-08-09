@@ -14,7 +14,7 @@ import Signup from './pages/Signup.tsx'
 import Login from './pages/Login.tsx'
 import Logout from './pages/Logout.tsx'
 import Mypage from './pages/Mypage.tsx';
-
+import Withdrawal from './pages/Withdrawal.tsx';
 
 createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
@@ -26,6 +26,7 @@ createRoot(document.getElementById('root')!).render(
         <Route path="/login" element={<Login />} />
         <Route path="/logout" element={<Logout />} />
         <Route path="/mypage" element={<Mypage />} />
+        <Route path="/withdrawal" element={<Withdrawal />} />
 
         {/* 다른 경로도 필요에 따라 추가 가능 */}        
         {/* 필요하면 다른 경로도 추가 가능 */}

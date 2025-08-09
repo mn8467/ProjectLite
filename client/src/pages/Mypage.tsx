@@ -3,8 +3,7 @@ import AppTopstrip from '../components/AppTopstrip';
 import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
 import '../assets/css/styles.min.css';
-import '../assets/images/logos/logo-wrappixel.svg'
-import '../assets/images/logos/logo.svg'
+import { useNavigate } from 'react-router-dom';
 
 // 이 페이지에서만 사용하는 간단한 스타일
 const formStyles = {
@@ -53,10 +52,27 @@ const formStyles = {
   cancelButton: {
     backgroundColor: '#dc3545',
     color: 'white'
+  },
+  // 새로 추가된 스타일
+  deleteButtonContainer: {
+    display: 'flex',
+    justifyContent: 'center',
+    marginTop: '20px'
+  },
+  deleteButton: {
+    padding: '12px 24px',
+    border: 'none',
+    borderRadius: '4px',
+    cursor: 'pointer',
+    fontWeight: 'bold',
+    backgroundColor: '#6c757d', // 회색 계열 색상
+    color: 'white',
+    fontSize: '1.1em' // 버튼을 조금 더 크게
   }
 };
 
 const Mypage = () => {
+  const navigate = useNavigate();
   const [userInfo, setUserInfo] = useState({
     memberId: 'king123',
     nickname: '즐라탄',
@@ -80,6 +96,11 @@ const Mypage = () => {
     alert('수정이 취소되었습니다.');
   };
 
+  // 회원탈퇴 페이지로 이동하는 함수 추가
+  const handleDeleteRedirect = () => {
+    navigate('/withdrawal');
+  };
+
   return (
     <>
       <div className="page-wrapper" id="main-wrapper" data-layout="vertical" data-navbarbg="skin6" data-sidebartype="full"
@@ -95,18 +116,19 @@ const Mypage = () => {
             <h2>회원 정보 수정</h2>
             <div style={formStyles.inputGroup}>
               <label style={formStyles.label}>회원 아이디</label>
-              <input 
-                type="text" 
+              <input
+                type="text"
                 name="memberId"
                 value={userInfo.memberId}
                 readOnly
-                style={{...formStyles.input, ...formStyles.readOnlyInput}}
+                // readOnlyInput 스타일 대신 일반 input 스타일을 적용하고, 커서 모양만 변경
+                style={{...formStyles.input, cursor: 'not-allowed'}}
               />
             </div>
             <div style={formStyles.inputGroup}>
               <label style={formStyles.label}>닉네임</label>
-              <input 
-                type="text" 
+              <input
+                type="text"
                 name="nickname"
                 value={userInfo.nickname}
                 onChange={handleChange}
@@ -115,8 +137,8 @@ const Mypage = () => {
             </div>
             <div style={formStyles.inputGroup}>
               <label style={formStyles.label}>비밀번호</label>
-              <input 
-                type="password" 
+              <input
+                type="password"
                 name="password"
                 value={userInfo.password}
                 onChange={handleChange}
@@ -127,6 +149,11 @@ const Mypage = () => {
             <div style={formStyles.buttonGroup}>
               <button onClick={handleConfirm} style={{...formStyles.button, ...formStyles.confirmButton}}>확인</button>
               <button onClick={handleCancel} style={{...formStyles.button, ...formStyles.cancelButton}}>취소</button>
+            </div>
+
+            {/* 회원탈퇴 버튼 추가 */}
+            <div style={formStyles.deleteButtonContainer}>
+              <button onClick={handleDeleteRedirect} style={formStyles.deleteButton}>회원탈퇴</button>
             </div>
           </div>
         </div>
