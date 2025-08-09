@@ -50,7 +50,7 @@ const Logout: React.FC = () => {
       setIsSuccess(true);
       
       // 로그아웃 성공 후 로그인 페이지로 이동합니다.
-      navigate('/login');
+      navigate('/home');
     } catch (error) {
       if (axios.isAxiosError(error) && error.response) {
         setMessage(error.response.data.message || '로그아웃에 실패했습니다.');

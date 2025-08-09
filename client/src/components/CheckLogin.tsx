@@ -29,7 +29,7 @@ const useCheckLogin = () => {
     }, []);
 
     // isLoggedIn과 isLoading 상태를 객체로 반환하여 컴포넌트에서 사용할 수 있도록 합니다.
-    return { isLoggedIn, isLoading };
+return { isLoggedIn, isLoading, setIsLoggedIn };  // 여기 setIsLoggedIn 추가됨
 };
 
 export default useCheckLogin;
