@@ -13,6 +13,7 @@ import Home from './Home.tsx';
 import Signup from './pages/Signup.tsx'
 import Login from './pages/Login.tsx'
 import Logout from './pages/Logout.tsx'
+import Mypage from './pages/Mypage.tsx';
 
 
 createRoot(document.getElementById('root')!).render(
@@ -24,7 +25,7 @@ createRoot(document.getElementById('root')!).render(
         <Route path="/signup" element={<Signup />} />
         <Route path="/login" element={<Login />} />
         <Route path="/logout" element={<Logout />} />
-
+        <Route path="/mypage" element={<Mypage />} />
 
         {/* 다른 경로도 필요에 따라 추가 가능 */}        
         {/* 필요하면 다른 경로도 추가 가능 */}

@@ -50,15 +50,13 @@ const Sidebar: React.FC = () => {
               </a>
             </li>
             <li className="sidebar-item">
-              <a className="sidebar-link justify-content-between"  
-                href="#" aria-expanded="false">
+              <a className="sidebar-link justify-content-between" href="/mypage" aria-expanded="false">
                 <div className="d-flex align-items-center gap-3">
                   <span className="d-flex">
                     <User /> 
                   </span>
                   <span className="hide-menu">마이페이지</span>
-                </div>
-                
+                </div>  
               </a>
             </li>
           </ul>
