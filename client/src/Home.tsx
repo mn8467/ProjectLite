@@ -4,7 +4,6 @@ import './assets/images/logos/logo.svg'
 import AppTopstrip from './components/AppTopstrip'; 
 import Sidebar from './components/Sidebar';
 import Header from './components/Header';   
-
 function Home(){
     return(
         <>

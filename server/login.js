@@ -47,7 +47,7 @@ passport.deserializeUser(function(user, cb) {
     process.nextTick(function() {
         return cb(null, user);
     });
-});
+}); 
 
 // 로그인 라우터
 login.post('/', passport.authenticate('local', {

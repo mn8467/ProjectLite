@@ -7,7 +7,6 @@ const cors = require('cors');
 const app = express();
 const PORT = 8080;
 
-
 const { promisePool } = require('./db');
 
 
@@ -78,11 +77,13 @@ app.use(cors({
 const signupRouter = require('./signup');
 const loginRouter = require('./login');
 const logoutRouter = require('./logout');
+const boardRouter = require('./controller/boardcontroller');
+
 
 app.use('/signup', signupRouter);
 app.use('/login', loginRouter);
 app.use('/logout', logoutRouter);
-
+app.use('/board', boardRouter);
 
 app.listen(PORT, () => {
     console.log(`Backend running on http://localhost:${PORT}`);
