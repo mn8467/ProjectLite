@@ -15823,6 +15823,15 @@ textarea.form-control-lg {
   top: 0;
   z-index: 12;
 }
+.app-board{
+  position: fixed;
+  left: 0;
+  z-index: 30;
+  margin-left: 237px;
+  width: calc(110% - 270px);
+  top: 112px;
+
+}
 
 .app-header {
   position: fixed;
