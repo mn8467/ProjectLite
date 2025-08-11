@@ -78,7 +78,7 @@ const Board: React.FC = () => {
         <h1 className="text-3xl font-bold text-gray-800 mb-6 text-center">게시판</h1>
 
         <div className="overflow-x-auto">
-          <table className=" divide-y divide-gray-200">
+          <table className="table divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
                 <th scope="col" className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider w-1">

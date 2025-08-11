@@ -15827,11 +15827,15 @@ textarea.form-control-lg {
   position: fixed;
   left: 0;
   z-index: 30;
-  margin-left: 237px;
+  margin-left: 220px;
   width: calc(110% - 270px);
   top: 112px;
 
 }
+.table {
+      table-layout: fixed;
+      width: 100%; /* 테이블 전체 너비 */
+    }
 
 .app-header {
   position: fixed;
