@@ -75,7 +75,7 @@ const Board: React.FC = () => {
    <div className="app-board">
     <div className="bg-gray-100 flex items-center justify-center min-h-screen p-4">
       <div className="bg-white p-6 md:p-8 rounded-lg shadow-lg w-full max-w-4xl">
-        <h1 className="text-3xl font-bold text-gray-800 mb-6 text-center">게시판</h1>
+        <h1 className="text-3xl font-bold text-gray-800 mb-6 text-center">최근 올라온 글</h1>
 
         <div className="overflow-x-auto">
           <table className="table divide-y divide-gray-200">
