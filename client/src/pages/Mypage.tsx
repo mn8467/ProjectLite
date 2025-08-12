@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import React, { useState, useEffect } from 'react'; // ⭐️ [추가된 부분] useEffect를 추가합니다.
+import axios from 'axios'; // ⭐️ [추가된 부분] API 호출을 위해 axios를 임포트합니다.
 import AppTopstrip from '../components/AppTopstrip';
 import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
@@ -68,37 +68,35 @@ const formStyles = {
   }
 };
 
-// 사용자 정보의 타입을 정의합니다.
+// ⭐️ [추가된 부분] 사용자 정보의 타입을 정의합니다.
 interface UserInfo {
   memberId: string;
   nickname: string;
-  password?: string; // 비밀번호는 보통 가져오지 않습니다.
+  password?: string;
 }
 
 const Mypage = () => {
   const navigate = useNavigate();
+  // ⭐️ [수정된 부분] useState의 초기값을 빈 문자열로 변경하고 타입을 정의합니다.
   const [userInfo, setUserInfo] = useState<UserInfo>({
     memberId: '',
     nickname: '',
   });
+  // ⭐️ [추가된 부분] 데이터 로딩 상태를 관리하는 state를 추가합니다.
   const [isLoading, setIsLoading] = useState(true);
 
-  // 컴포넌트가 처음 렌더링될 때 사용자 정보를 가져옵니다.
+  // ⭐️ [추가된 부분] 컴포넌트가 처음 렌더링될 때 사용자 정보를 가져옵니다.
   useEffect(() => {
     const fetchUserInfo = async () => {
       try {
-        // 백엔드의 사용자 정보 API 엔드포인트로 GET 요청을 보냅니다.
-        // 이때 로그인 시 받은 세션 쿠키를 자동으로 포함하기 위해 withCredentials를 true로 설정합니다.
         const response = await axios.get<UserInfo>('http://localhost:8080/userinfo', {
           withCredentials: true
         });
         
-        // 서버에서 받은 데이터를 상태에 저장합니다.
         setUserInfo(response.data);
-        setIsLoading(false);
+        setIsLoading(false); // 로딩 완료
       } catch (error) {
         console.error('사용자 정보를 가져오는 데 실패했습니다.', error);
-        // 사용자 정보 가져오기 실패 시 로그인 페이지로 리디렉션
         alert('로그인이 필요합니다.');
         navigate('/login');
       }
@@ -114,9 +112,17 @@ const Mypage = () => {
 
   const handleConfirm = async () => {
     try {
-      // TODO: 서버로 수정된 정보를 전송하는 API 호출 로직을 작성하세요.
-      // 예시: axios.put('http://localhost:8080/userinfo', userInfo, { withCredentials: true });
-      alert('회원 정보가 수정되었습니다!');
+      // ⭐️ [수정된 부분] axios.put을 이용해 백엔드 API에 수정 요청을 보냅니다.
+      const response = await axios.put('http://localhost:8080/userinfo', {
+          nickname: userInfo.nickname
+      }, {
+          withCredentials: true
+      });
+
+      if (response.status === 200) {
+          alert('회원 정보가 수정되었습니다!');
+          // 성공 시, 서버에서 받은 최신 정보로 상태를 업데이트할 수도 있습니다.
+      }
     } catch (error) {
       console.error('회원 정보 수정 실패', error);
       alert('회원 정보 수정에 실패했습니다.');
@@ -132,6 +138,7 @@ const Mypage = () => {
     navigate('/withdrawal');
   };
 
+  // ⭐️ [추가된 부분] 로딩 중일 때 다른 화면을 보여주는 조건부 렌더링입니다.
   if (isLoading) {
     return (
       <div style={{ textAlign: 'center', marginTop: '50px' }}>

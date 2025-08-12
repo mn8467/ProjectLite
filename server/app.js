@@ -1,7 +1,7 @@
 // app.js
 const express = require('express');
 const session = require('express-session');
-const MySQLStore = require('express-mysql-session')(session); // express-mysql-session 임포트
+const MySQLStore = require('express-mysql-session')(session);
 const passport = require('passport');
 const cors = require('cors');
 const app = express();
@@ -9,14 +9,12 @@ const PORT = 8080;
 
 const { promisePool } = require('./db');
 
-
-
 // MySQLStore 설정
 const sessionStore = new MySQLStore({
     clearExpired: true,
-    checkExpirationInterval: 900000, // 15분마다 만료된 세션 정리
-    expiration: 86400000, // 24시간
-    createDatabaseTable: true, // 테이블이 없으면 자동으로 생성
+    checkExpirationInterval: 900000,
+    expiration: 86400000,
+    createDatabaseTable: true,
     schema: {
         tableName: 'sessions',
         columnNames: {
@@ -25,9 +23,9 @@ const sessionStore = new MySQLStore({
             data: 'data'
         }
     }
-}, promisePool); // db.js의 promisePool을 직접 전달
+}, promisePool);
 
-// CORS 설정: 다른 미들웨어보다 먼저 위치해야 합니다.
+//  CORS 설정은 다른 미들웨어보다 가장 먼저 위치해야 한다고함.
 app.use(cors({
     origin: 'http://localhost:5173',
     credentials: true
@@ -38,10 +36,10 @@ app.use(session({
     secret: 'your-secret-key',
     resave: false,
     saveUninitialized: false,
-    store: sessionStore, // MySQLStore 사용
+    store: sessionStore,
     cookie: {
         secure: false,
-        maxAge: 1000 * 60 * 60 * 24 // 24시간
+        maxAge: 1000 * 60 * 60 * 24
     }
 }));
 
@@ -49,10 +47,8 @@ app.use(session({
 //세션 확인
 app.get('/check-session', (req, res) => {
     if (req.session && req.session.isLoggedIn) {
-        // 세션에 로그인 정보가 있다면
         res.status(200).json({ isLoggedIn: true });
     } else {
-        // 세션에 로그인 정보가 없다면
         res.status(200).json({ isLoggedIn: false });
     }
 });
@@ -66,11 +62,20 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 
-// CORS 설정: 이 부분을 다시 추가해야 합니다.
-app.use(cors({
-  origin: 'http://localhost:5173',
-  credentials: true
-}));
+// [추가된 부분] 로그인한 사용자의 정보를 반환하는 API 엔드포인트
+app.get('/userinfo', (req, res) => {
+    // 세션에 저장된 사용자 정보가 있는지 확인
+    if (req.session && req.session.userId) {
+        const user = {
+            memberId: req.session.userId, 
+            nickname: req.session.nickname
+        };
+        res.status(200).json(user);
+    } else {
+        // 로그인하지 않은 상태라면 401 Unauthorized 응답
+        res.status(401).json({ message: '로그인이 필요합니다.' });
+    }
+});
 
 
 // 라우터 설정
