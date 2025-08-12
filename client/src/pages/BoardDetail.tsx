@@ -89,6 +89,13 @@ const BoardDetail: React.FC = () => {
                         <td colSpan={3} style={{ height: "200px" }}>{boardDetailsData.content}</td>
                         </tr>
                 </table>
+
+                <button 
+                    className="post-view-go-list-btn" 
+                    onClick={() => window.history.back()}
+                >
+                    목록으로 돌아가기
+                </button>
             </div>
         </div>
     );
