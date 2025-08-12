@@ -15,12 +15,14 @@ import Login from './pages/Login.tsx'
 import Logout from './pages/Logout.tsx'
 import Mypage from './pages/Mypage.tsx';
 import Withdrawal from './pages/Withdrawal.tsx';
+import BoardDetail from './pages/BoardDetail.tsx'
 
 createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <BrowserRouter>
       <Routes>
         <Route path="/home" element={<Home />} />
+        <Route path="/board/:boardId" element={<BoardDetail/>} />
         <Route path="/app" element={<App />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/login" element={<Login />} />
