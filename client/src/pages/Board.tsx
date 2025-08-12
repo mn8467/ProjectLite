@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 // API에서 가져온 게시글 데이터의 타입을 정의합니다.
 // 이 타입은 데이터의 구조를 명확히 하고 코드 안정성을 높입니다.
 interface Post {
+  board_id: number; // 게시글 ID
   nickname: string;
   title: string;
   content: string;
@@ -81,6 +82,9 @@ const Board: React.FC = () => {
           <table className="table divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider w-1/4 hidden">
+                  게시물 번호
+                </th>
                 <th scope="col" className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider w-1">
                   작성자
                 </th>
@@ -103,8 +107,13 @@ const Board: React.FC = () => {
                 
                 return (
                   <tr key={index} className="hover:bg-gray-50 transition duration-150 ease-in-out">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 hidden">{post.board_id}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{post.nickname}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{post.title}</td>
+                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                      <a href={`/board/${post.board_id}`} className="text-blue-600 hover:text-blue-800">
+                      {post.title}
+                      </a>
+                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formattedDate}</td>
                   </tr>
                 );
