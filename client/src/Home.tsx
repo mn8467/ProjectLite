@@ -4,7 +4,7 @@ import './assets/images/logos/logo.svg'
 import AppTopstrip from './components/AppTopstrip'; 
 import Sidebar from './components/Sidebar';
 import Header from './components/Header';   
-import Board from './pages/Board';
+import BoardRecently from './pages/Board';
 function Home(){
     return(
         <>
@@ -15,7 +15,7 @@ function Home(){
            </div>         
                 <div className="body-wrapper">
                     <Header />
-                    <Board />
+                    <BoardRecently />
                 </div>
           
         </>

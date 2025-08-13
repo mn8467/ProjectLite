@@ -4,7 +4,6 @@ const login = express.Router();
 const bcrypt = require('bcrypt');
 const passport = require('passport');
 const LocalStrategy = require('passport-local');
-
 const { promisePool } = require('./db');
 
 passport.use(new LocalStrategy(

@@ -1,4 +1,3 @@
-// app.js
 const express = require('express');
 const session = require('express-session');
 const MySQLStore = require('express-mysql-session')(session);
@@ -7,8 +6,8 @@ const cors = require('cors');
 const bcrypt = require('bcrypt'); // ⭐️ [추가] bcrypt 모듈 로드
 const app = express();
 const PORT = 8080;
-
 const { promisePool } = require('./db');
+
 
 const sessionStore = new MySQLStore({
     clearExpired: true,
@@ -41,6 +40,19 @@ app.use(session({
     }
 }));
 
+
+//세션 확인
+app.get('/check-session', (req, res) => {
+    if (req.session && req.session.isLoggedIn) {
+        // 세션에 로그인 정보가 있다면
+        userId = req.session.passport.user.user_id;
+        userName = req.session.passport.user.username;
+        res.status(200).json({ isLoggedIn: true, userId, userName });
+    } else {
+        // 세션에 로그인 정보가 없다면
+        res.status(200).json({ isLoggedIn: false });
+    }
+});
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));

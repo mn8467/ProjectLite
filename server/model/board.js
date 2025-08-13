@@ -1,7 +1,3 @@
-
-
-
-
 class Post{
 constructor(board_id, user_id, title, content,createdAt) {
         this.board_id = board_id;

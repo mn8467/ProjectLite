@@ -18,8 +18,6 @@ board.get('/', async (req, res) => {
     }
 });
 
-// [GET] /board/:id 요청에 대한 핸들러.
-// 특정 게시글의 상세 데이터를 조회합니다.
 
 board.get('/:id', async (req, res) => {
     const boardId = parseInt(req.params.id, 10); // 가져온 문자를 10진수 정수로 변환하여 숫자값으로 처리

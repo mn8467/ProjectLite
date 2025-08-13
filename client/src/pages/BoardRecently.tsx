@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
-// 1. react-router-dom에서 Link 컴포넌트를 import 합니다.
 import { Link } from 'react-router-dom';
 
 // API에서 가져온 게시글 데이터의 타입을 정의합니다.
 // 이 타입은 데이터의 구조를 명확히 하고 코드 안정성을 높입니다.
 interface Post {
-    board_id: number; // 게시글 ID
+    board_id: number;
     nickname: string;
     title: string;
     created_at: string;
@@ -23,6 +22,9 @@ const Board: React.FC = () => {
         const fetchBoardData = async () => {
             try {
                 // Node.js 서버의 API 엔드포인트에서 데이터를 가져옵니다.
+                // 백엔드에서 LIMIT를 적용하도록 수정했기 때문에 프론트엔드에서는
+                // 쿼리 파라미터를 추가하여 5개만 요청할 수 있습니다.
+                // 만약 백엔드 수정이 어렵다면, 현재 코드처럼 전체를 가져온 뒤 프론트에서 처리하는 것도 가능합니다.
                 const response = await fetch('http://localhost:8080/board');
                 
                 if (!response.ok) {
@@ -72,10 +74,23 @@ const Board: React.FC = () => {
             </div>
         );
     }
+    
+    // --- 이 부분에서 전체 posts 배열을 가공합니다. ---
+    // 1. 전체 게시물을 날짜(created_at) 기준으로 내림차순 정렬합니다.
+// ...existing code...
+const sortedPosts = [...posts].sort((a, b) => {
+    // 날짜 파싱이 잘 되는지 로그로 확인
+    const dateA = new Date(a.created_at);
+    const dateB = new Date(b.created_at);
+    console.log('dateA:', dateA, 'dateB:', dateB);
+    return dateB.getTime() - dateA.getTime();
+});
+
+const recentPosts = sortedPosts.slice(0, 5);
+// ...existing code...
 
     return (
         <div className="app-board">
-            
             <div className="bg-gray-100 flex items-center justify-center min-h-screen p-4">
                 <div className="bg-white p-6 md:p-8 rounded-lg shadow-lg w-full max-w-4xl">
                     <div className="app-board overflow-x-auto">
@@ -94,22 +109,17 @@ const Board: React.FC = () => {
                                 </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-200">
-                                {/* posts 배열을 map 함수로 순회하며 테이블 행을 생성합니다. */}
-                                {posts.map((post) => { // 2. index 대신 post 객체를 사용하도록 수정
-                                    // 날짜 포맷팅 (YYYY-MM-DD)
+                                {/* recentPosts 배열을 map 함수로 순회하며 테이블 행을 생성합니다. */}
+                                {recentPosts.map((post) => { // 변경된 부분
                                     const date = new Date(post.created_at);
                                     const formattedDate = date.getFullYear() + '-' +
                                         String(date.getMonth() + 1).padStart(2, '0') + '-' +
                                         String(date.getDate()).padStart(2, '0');
                                     
-                                    // 3. React 리스트의 key prop에 고유한 값(post.board_id)을 사용합니다.
-                                    //    이렇게 하면 React가 목록의 항목을 더 효율적으로 업데이트할 수 있습니다.
                                     return (
                                         <tr key={post.board_id} className="hover:bg-gray-50 transition duration-150 ease-in-out">
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{post.nickname}</td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                                {/* 4. a 태그를 Link 컴포넌트로 변경하여 SPA처럼 동작하게 합니다. */}
-                                                {/* href 대신 to 속성을 사용하고, URL은 동적으로 생성합니다. */}
                                                 <Link to={`/board/${post.board_id}`}>
                                                     {post.title}
                                                 </Link>

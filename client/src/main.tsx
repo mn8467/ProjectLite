@@ -26,7 +26,7 @@ createRoot(document.getElementById('root')!).render(
       <Routes>
         <Route path="/home" element={<Home />} />
         <Route path="/board/:boardId" element={<MainLayout><BoardDetail/></MainLayout>} />
-        <Route path="/tes123" element={<MainLayout><BoardWrite /></MainLayout>} />
+        <Route path="/board/write" element={<MainLayout><BoardWrite /></MainLayout>} />
         <Route path="/app" element={<App />} />
         <Route path='/board' element={<MainLayout><Board/></MainLayout>} />
         <Route path="/signup" element={<Signup />} />
