@@ -16,14 +16,19 @@ import Logout from './pages/Logout.tsx'
 import Mypage from './pages/Mypage.tsx';
 import Withdrawal from './pages/Withdrawal.tsx';
 import BoardDetail from './pages/BoardDetail.tsx'
+import MainLayout from './components/MainLayout.tsx'
+import BoardWrite from './pages/BoardWrite.tsx'
+import Board from './pages/Board.tsx'
 
 createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <BrowserRouter>
       <Routes>
         <Route path="/home" element={<Home />} />
-        <Route path="/board/:boardId" element={<BoardDetail/>} />
+        <Route path="/board/:boardId" element={<MainLayout><BoardDetail/></MainLayout>} />
+        <Route path="/tes123" element={<MainLayout><BoardWrite /></MainLayout>} />
         <Route path="/app" element={<App />} />
+        <Route path='/board' element={<MainLayout><Board/></MainLayout>} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/login" element={<Login />} />
         <Route path="/logout" element={<Logout />} />

@@ -1,5 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
+import AppTopstrip from '../components/AppTopstrip';
+import Sidebar from '../components/Sidebar';
+import { Container, Card, Button } from 'react-bootstrap';
+import 'bootstrap/dist/css/bootstrap.min.css';
+
 
 interface BoardDetail{
     board_id: number; // 게시글 ID
@@ -66,38 +71,53 @@ const BoardDetail: React.FC = () => {
 
     // 날짜 포맷팅 (YYYY-MM-DD)
     const date = new Date(boardDetailsData.created_at);
-    const formattedDate = date.getFullYear() + '-' +
-                          String(date.getMonth() + 1).padStart(2, '0') + '-' +
+    const formattedDate = date.getFullYear() + '.' +
+                          String(date.getMonth() + 1).padStart(2, '0') + '.' +
                           String(date.getDate()).padStart(2, '0');
 
-    return (
-        <div className="outer">
-            <h2>게시글 상세정보</h2>
-            <div className="overflow-x-auto">
-                <table className='detail-table'>
-                        <tr>
-                        <th colSpan={4}>{boardDetailsData.title}</th>
-                        </tr>
-                        <tr>
-                        <th>작성자</th>
-                        <td>{boardDetailsData.nickname}</td>
-                        <th>작성일</th>
-                        <td>{formattedDate}</td>
-                        </tr>
-                        <tr>
-                        <th>글내용</th>
-                        <td colSpan={3} style={{ height: "200px" }}>{boardDetailsData.content}</td>
-                        </tr>
-                </table>
+    const formattedTime = String(date.getHours()).padStart(2, '0') + ':' +
+                          String(date.getMinutes()).padStart(2, '0') + ':' +
+                          String(date.getSeconds()).padStart(2, '0');
 
-                <button 
-                    className="post-view-go-list-btn" 
-                    onClick={() => window.history.back()}
-                >
-                    목록으로 돌아가기
-                </button>
-            </div>
-        </div>
+    return (
+
+        <>
+                  <Container className="d-flex align-items-center justify-content-center min-vh-100 p-4">
+                  {/* Bootstrap Card 컴포넌트를 사용하여 컨테이너를 만듭니다. */}
+                  <Card className="shadow-lg p-4 p-md-5 w-100 border-0 rounded-3">
+                    {/* 게시글 제목 영역 */}
+                    <div className="border-bottom border-2 border-light-subtle pb-4 mb-4 ">
+                      <h1 className="fs-3 fw-bolder text-dark leading-tight ">
+                              {boardDetailsData.title}
+                      </h1>
+                      {/* 작성자 및 정보 영역 */}
+                      <div className="mt-2 text-muted d-flex flex-wrap gap-4">
+                        <span>작성자: <strong className="text-dark">{boardDetailsData.nickname}</strong></span>
+                        <span>작성일: {formattedDate} {formattedTime}</span>
+                      </div>
+                    </div>
+
+                    {/* 게시글 내용 영역 */}
+                    {/* Bootstrap은 Tailwind의 'prose'와 같은 기능을 제공하지 않아, 
+                        텍스트 가독성을 위해 일부 커스텀 CSS를 사용했습니다. */}
+                    <div className="post-content">
+                      {boardDetailsData.content}
+                    </div>
+                    
+                    {/* 버튼 영역 */}
+                    <div className="mt-4 d-flex justify-content-end">
+                      {/* React-Bootstrap Button 컴포넌트를 사용했습니다. */}
+                      <Button
+                        variant="primary"
+                        className="rounded-pill px-4"
+                        onClick={() => window.history.back()}
+                      >
+                        목록으로 돌아가기
+                      </Button>
+                    </div>
+                  </Card>
+                </Container>
+                    </>
     );
 };
 

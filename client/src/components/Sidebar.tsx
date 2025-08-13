@@ -22,14 +22,14 @@ const Sidebar: React.FC = () => {
           </div>
         </div>
         {/* <!-- Sidebar navigation--> */}
-        <nav className="sidebar-nav scroll-sidebar d-flex" data-simplebar="">
+        <nav className="sidebar-nav scroll-sidebar d-flex">
           <ul id="sidebarnav">
             <li className="nav-small-cap ">
              
               <span className="hide-menu">Home</span>
             </li>
             <li className="sidebar-item">
-              <a className="sidebar-link" href="./index.html" aria-expanded="false">
+              <a className="sidebar-link" href="/home" aria-expanded="false">
                  <House />
                 <span className="hide-menu">Home</span>
               </a>
@@ -39,7 +39,7 @@ const Sidebar: React.FC = () => {
             <!-- ---------------------------------- --> */}
             <li className="sidebar-item">
               <a className="sidebar-link justify-content-between"  
-                href="#" aria-expanded="false">
+                href="/board" aria-expanded="false">
                 <div className="d-flex align-items-center gap-3">
                   <span className="d-flex">
                     <NotebookText />
