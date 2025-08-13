@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react'; // ⭐️ [추가된 부분] useEffect를 추가합니다.
-import axios from 'axios'; // ⭐️ [추가된 부분] API 호출을 위해 axios를 임포트합니다.
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import AppTopstrip from '../components/AppTopstrip';
 import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
@@ -23,6 +23,11 @@ const formStyles = {
     marginBottom: '5px',
     fontWeight: 'bold'
   },
+  inputContainer: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '10px'
+  },
   input: {
     width: '100%',
     padding: '10px',
@@ -42,6 +47,15 @@ const formStyles = {
     borderRadius: '4px',
     cursor: 'pointer',
     fontWeight: 'bold'
+  },
+  checkButton: {
+    padding: '10px 15px',
+    border: 'none',
+    borderRadius: '4px',
+    cursor: 'pointer',
+    fontWeight: 'bold',
+    backgroundColor: '#6c757d',
+    color: 'white'
   },
   confirmButton: {
     backgroundColor: '#007bff',
@@ -68,24 +82,26 @@ const formStyles = {
   }
 };
 
-// ⭐️ [추가된 부분] 사용자 정보의 타입을 정의합니다.
 interface UserInfo {
   memberId: string;
   nickname: string;
-  password?: string;
 }
 
 const Mypage = () => {
   const navigate = useNavigate();
-  // ⭐️ [수정된 부분] useState의 초기값을 빈 문자열로 변경하고 타입을 정의합니다.
   const [userInfo, setUserInfo] = useState<UserInfo>({
     memberId: '',
     nickname: '',
   });
-  // ⭐️ [추가된 부분] 데이터 로딩 상태를 관리하는 state를 추가합니다.
+  // ⭐️ [추가] 비밀번호 상태 관리
+  const [passwords, setPasswords] = useState({
+      currentPassword: '',
+      newPassword: ''
+  });
   const [isLoading, setIsLoading] = useState(true);
+  const [isNicknameAvailable, setIsNicknameAvailable] = useState<boolean | null>(null);
+  const [originalNickname, setOriginalNickname] = useState<string>('');
 
-  // ⭐️ [추가된 부분] 컴포넌트가 처음 렌더링될 때 사용자 정보를 가져옵니다.
   useEffect(() => {
     const fetchUserInfo = async () => {
       try {
@@ -94,7 +110,8 @@ const Mypage = () => {
         });
         
         setUserInfo(response.data);
-        setIsLoading(false); // 로딩 완료
+        setOriginalNickname(response.data.nickname);
+        setIsLoading(false);
       } catch (error) {
         console.error('사용자 정보를 가져오는 데 실패했습니다.', error);
         alert('로그인이 필요합니다.');
@@ -107,30 +124,96 @@ const Mypage = () => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setUserInfo(prevInfo => ({ ...prevInfo, [name]: value }));
+    // ⭐️ [수정] 입력 필드에 따라 상태 업데이트 로직 분리
+    if (name === 'nickname') {
+        setUserInfo(prevInfo => ({ ...prevInfo, [name]: value }));
+        setIsNicknameAvailable(null);
+    } else {
+        setPasswords(prev => ({ ...prev, [name]: value }));
+    }
+  };
+
+  const handleCheckNickname = async () => {
+    if (userInfo.nickname.trim() === '') {
+        alert('닉네임을 입력해 주세요.');
+        return;
+    }
+    
+    if (userInfo.nickname === originalNickname) {
+        setIsNicknameAvailable(true);
+        alert('기존 닉네임과 동일합니다.');
+        return;
+    }
+
+    try {
+        const response = await axios.get('http://localhost:8080/check-nickname', {
+            params: { nickname: userInfo.nickname },
+            withCredentials: true
+        });
+
+        if (response.data.isAvailable) {
+            alert('사용 가능한 닉네임입니다.');
+            setIsNicknameAvailable(true);
+        } else {
+            alert('이미 사용 중인 닉네임입니다.');
+            setIsNicknameAvailable(false);
+        }
+    } catch (error) {
+        console.error('닉네임 중복 확인 실패', error);
+        alert('닉네임 중복 확인에 실패했습니다.');
+        setIsNicknameAvailable(false);
+    }
   };
 
   const handleConfirm = async () => {
-    try {
-      // ⭐️ [수정된 부분] axios.put을 이용해 백엔드 API에 수정 요청을 보냅니다.
-      const response = await axios.put('http://localhost:8080/userinfo', {
-          nickname: userInfo.nickname
-      }, {
-          withCredentials: true
-      });
+    // 닉네임 변경이 없거나, 중복 확인이 완료되지 않았을 경우
+    const isNicknameChanged = userInfo.nickname !== originalNickname;
+    if (isNicknameChanged && isNicknameAvailable !== true) {
+        alert('닉네임 중복 확인을 먼저 완료해 주세요.');
+        return;
+    }
 
-      if (response.status === 200) {
-          alert('회원 정보가 수정되었습니다!');
-          // 성공 시, 서버에서 받은 최신 정보로 상태를 업데이트할 수도 있습니다.
-      }
-    } catch (error) {
-      console.error('회원 정보 수정 실패', error);
-      alert('회원 정보 수정에 실패했습니다.');
+    // 비밀번호 변경이 있을 경우 현재 비밀번호 필수
+    const isPasswordChanged = passwords.newPassword.trim() !== '';
+    if (isPasswordChanged && passwords.currentPassword.trim() === '') {
+        alert('새 비밀번호를 설정하려면 현재 비밀번호를 입력해야 합니다.');
+        return;
+    }
+    
+    // 닉네임과 비밀번호 모두 변경이 없을 경우
+    if (!isNicknameChanged && !isPasswordChanged) {
+        alert('수정된 정보가 없습니다.');
+        return;
+    }
+
+    try {
+        const response = await axios.put('http://localhost:8080/userinfo', {
+            nickname: isNicknameChanged ? userInfo.nickname : undefined,
+            currentPassword: isPasswordChanged ? passwords.currentPassword : undefined,
+            newPassword: isPasswordChanged ? passwords.newPassword : undefined,
+        }, {
+            withCredentials: true
+        });
+
+        if (response.status === 200) {
+            alert('회원 정보가 수정되었습니다!');
+            // 성공 시 상태 초기화
+            setOriginalNickname(userInfo.nickname);
+            setIsNicknameAvailable(null);
+            setPasswords({ currentPassword: '', newPassword: '' });
+        }
+    } catch (error: any) {
+        console.error('회원 정보 수정 실패', error);
+        // 서버에서 보낸 에러 메시지 표시
+        const message = error.response?.data?.message || '회원 정보 수정에 실패했습니다.';
+        alert(message);
     }
   };
 
   const handleCancel = () => {
-    console.log("취소 버튼 클릭됨");
+    setUserInfo(prevInfo => ({ ...prevInfo, nickname: originalNickname }));
+    setIsNicknameAvailable(null);
+    setPasswords({ currentPassword: '', newPassword: '' });
     alert('수정이 취소되었습니다.');
   };
 
@@ -138,7 +221,6 @@ const Mypage = () => {
     navigate('/withdrawal');
   };
 
-  // ⭐️ [추가된 부분] 로딩 중일 때 다른 화면을 보여주는 조건부 렌더링입니다.
   if (isLoading) {
     return (
       <div style={{ textAlign: 'center', marginTop: '50px' }}>
@@ -172,27 +254,60 @@ const Mypage = () => {
             </div>
             <div style={formStyles.inputGroup}>
               <label style={formStyles.label}>닉네임</label>
+              <div style={formStyles.inputContainer}>
+                <input
+                  type="text"
+                  name="nickname"
+                  value={userInfo.nickname}
+                  onChange={handleChange}
+                  style={{ ...formStyles.input, width: 'calc(100% - 110px)' }}
+                />
+                <button
+                  onClick={handleCheckNickname}
+                  style={formStyles.checkButton}
+                >
+                  중복 체크
+                </button>
+              </div>
+              {isNicknameAvailable === true && (
+                <p style={{ color: 'green', marginTop: '5px' }}>사용 가능한 닉네임입니다.</p>
+              )}
+              {isNicknameAvailable === false && (
+                <p style={{ color: 'red', marginTop: '5px' }}>이미 사용 중인 닉네임입니다.</p>
+              )}
+            </div>
+            <div style={formStyles.inputGroup}>
+              <label style={formStyles.label}>현재 비밀번호</label>
               <input
-                type="text"
-                name="nickname"
-                value={userInfo.nickname}
+                type="password"
+                name="currentPassword"
+                value={passwords.currentPassword}
                 onChange={handleChange}
+                placeholder="현재 비밀번호를 입력하세요"
                 style={formStyles.input}
               />
             </div>
             <div style={formStyles.inputGroup}>
-              <label style={formStyles.label}>비밀번호</label>
+              <label style={formStyles.label}>새 비밀번호</label>
               <input
                 type="password"
-                name="password"
-                value={userInfo.password || ''}
+                name="newPassword"
+                value={passwords.newPassword}
                 onChange={handleChange}
-                placeholder="새 비밀번호를 입력하세요"
+                placeholder="변경할 비밀번호를 입력하세요"
                 style={formStyles.input}
               />
             </div>
             <div style={formStyles.buttonGroup}>
-              <button onClick={handleConfirm} style={{...formStyles.button, ...formStyles.confirmButton}}>확인</button>
+              <button
+                onClick={handleConfirm}
+                style={{
+                  ...formStyles.button,
+                  ...formStyles.confirmButton
+                }}
+              >
+                확인
+              </button>
               <button onClick={handleCancel} style={{...formStyles.button, ...formStyles.cancelButton}}>취소</button>
             </div>
             <div style={formStyles.deleteButtonContainer}>
