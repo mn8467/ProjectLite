@@ -5,22 +5,22 @@ import CheckLogin from '../components/CheckLogin'; // 로그인 상태를 확인
 
 
 const BoardWrite: React.FC = () => {
-    const { isLoggedIn, isLoading ,setIsLoggedIn ,setNickname, setUserId  } = CheckLogin();
+    const { isLoggedIn, isLoading, setIsLoggedIn,setUserId , setNickname } = CheckLogin();
     const [title, setTitle] = useState<string>('');
     const [content, setContent] = useState<string>('');
     const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
     const [message, setMessage] = useState<{ text: string, type: 'success' | 'danger' } | null>(null);
-
+    
     const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-  
+
 
     setIsSubmitting(true);
     setMessage(null);
 
-    const boardData = {
-        userId: setUserId,
+    const userBoardData = {
+        user_id: setUserId,
         nickname: setNickname,
         title: title,
         content: content
@@ -32,7 +32,7 @@ const BoardWrite: React.FC = () => {
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify(boardData),
+            body: JSON.stringify(userBoardData),
         });
 
         if (response.ok) {
@@ -60,6 +60,7 @@ const BoardWrite: React.FC = () => {
                 <Form onSubmit={handleSubmit}>
                     <Form.Group className="mb-3" controlId="boardTitle">
                         <Form.Label>제목</Form.Label>
+                        <a>  작성자 : {} </a>
                         <Form.Control
                             type="text"
                             value={title}
