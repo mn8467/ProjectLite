@@ -15832,19 +15832,19 @@ textarea.form-control-lg {
 }
 
 .app-board{
-  position: fixed;
-  left: 0;
-  z-index: 30;
-  margin-left: 220px;
-  width: calc(110% - 270px);
-  top: 112px;
+  position: fixed !important;
+  left: 0 !important;
+  z-index: 30 !important;
+  margin-left: 220px !important;
+  width: calc(110% - 270px) !important;
+  top: 112px !important;
  }
 /* 추가: 화면이 768px 이하일 때 margin-left 0 */
 @media (max-width: 1199px) {
   .app-board {
-    margin-left: 0;
-    width: 100%; /* 필요에 따라 너비도 조절 */
-    top: 115px; /* 헤더 높이에 맞춰 조정 */
+    margin-left: 0 !important;
+    width: 100% !important; /* 필요에 따라 너비도 조절 */
+    top: 115px !important; /* 헤더 높이에 맞춰 조정 */
   }
 }
 .table {
@@ -15872,6 +15872,26 @@ header.app-header {
   }
 }
 
+.app-board-title{
+  position:fixed;
+  top: 65px;
+}
+
+@media (max-width: 1199px) {
+  .app-board-title {
+    justify-content: center;
+    top: 131px; /* 헤더 높이에 맞춰 조정 */
+  }
+}
+
+.app-board{
+  position: fixed;
+  left: 0;
+  z-index: 30;
+  margin-left: 270px;
+  width: calc(110% - 270px);
+  top: 112px;
+}
 
 .app-header .container-fluid, .app-header .container-sm, .app-header .container-md, .app-header .container-lg, .app-header .container-xl, .app-header .container-xxl {
   max-width: 1300px;
@@ -15942,6 +15962,16 @@ header.app-header {
 body {
   font-family: "DM Sans", sans-serif !important;
   background-color: #f6f8fb;
+}
+
+.post-content {
+  
+  width: 1000px;   /* 뷰포트 너비의 100% */
+  height: 80vh;  /* 뷰포트 높이의 100% */
+
+  overflow: auto; /* 내용이 넘칠 경우 스크롤바 생성 */
+  border: 1px solid #ccc; /* 구분을 위한 테두리 추가 (선택 사항) */
+  padding: 15px; /* 내부 여백 추가 (선택 사항) */
 }
 
 .page-wrapper {
