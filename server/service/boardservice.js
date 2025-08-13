@@ -5,7 +5,7 @@ const promisePool = require('../db').promisePool;
  * 새로운 게시글 생성
  */
 async function createBoard(boardData) {
-    // 🔹 [수정] 주석과 변수명 불일치 → 일치시킴
+    //  주석과 변수명 불일치 → 일치시킴
     const { user_id, title, content } = boardData; // 기존 userId → user_id
     const query = `
         INSERT INTO board (user_id, title, content)
@@ -16,7 +16,7 @@ async function createBoard(boardData) {
 }
 
 async function getBoard() {
-    try { // 🔹 [추가] 에러 핸들링
+    try { // [추가] 에러 핸들링
         const query = `
             SELECT
                 a.board_id,
@@ -38,7 +38,7 @@ async function getBoard() {
 }
 
 async function getBoardDetail(boardId) {
-    try { // 🔹 [추가] 에러 핸들링
+    try { //  [추가] 에러 핸들링
         const query = `
             SELECT
                 a.board_id,
