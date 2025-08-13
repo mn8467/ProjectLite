@@ -75,6 +75,7 @@ const Board: React.FC = () => {
 
     return (
         <div className="app-board">
+            
             <div className="bg-gray-100 flex items-center justify-center min-h-screen p-4">
                 <div className="bg-white p-6 md:p-8 rounded-lg shadow-lg w-full max-w-4xl">
                     <div className="app-board overflow-x-auto">
@@ -109,7 +110,7 @@ const Board: React.FC = () => {
                                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                                                 {/* 4. a 태그를 Link 컴포넌트로 변경하여 SPA처럼 동작하게 합니다. */}
                                                 {/* href 대신 to 속성을 사용하고, URL은 동적으로 생성합니다. */}
-                                                <Link to={`/board/${post.board_id}`} className="text-blue-600 hover:text-blue-800">
+                                                <Link to={`/board/${post.board_id}`}>
                                                     {post.title}
                                                 </Link>
                                             </td>
@@ -119,6 +120,11 @@ const Board: React.FC = () => {
                                 })}
                             </tbody>
                         </table>
+                        <button className="mt-4 btn btn-primary">
+                            <Link to="/tes123" className="text-white">
+                                글 작성하기
+                            </Link>
+                        </button>
                     </div>
                 </div>
             </div>
