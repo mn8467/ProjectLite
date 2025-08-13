@@ -77,7 +77,7 @@ const Board: React.FC = () => {
         <div className="app-board">
             <div className="bg-gray-100 flex items-center justify-center min-h-screen p-4">
                 <div className="bg-white p-6 md:p-8 rounded-lg shadow-lg w-full max-w-4xl">
-                    <div className="overflow-x-auto">
+                    <div className="app-board overflow-x-auto">
                         <table className="table divide-y divide-gray-200">
                             <thead className="bg-gray-50">
                                 <tr>

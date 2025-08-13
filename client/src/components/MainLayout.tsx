@@ -12,7 +12,7 @@ const MainLayout: React.FC<React.PropsWithChildren<{}>> = ({ children }) => {
            <AppTopstrip />
            <Sidebar />
       </div>
-      <div className="body-wrapper p-4 d-flex flex-grow-1" >
+      <div className="gosaeng-wrapper p-4 d-flex flex-grow-1" >
          
            {children}
          
