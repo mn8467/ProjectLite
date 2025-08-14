@@ -1,13 +1,14 @@
+// app.js
 const express = require('express');
 const session = require('express-session');
 const MySQLStore = require('express-mysql-session')(session);
 const passport = require('passport');
 const cors = require('cors');
-const bcrypt = require('bcrypt'); // ⭐️ [추가] bcrypt 모듈 로드
+const bcrypt = require('bcrypt');
 const app = express();
 const PORT = 8080;
-const { promisePool } = require('./db');
 
+const { promisePool } = require('./db');
 
 const sessionStore = new MySQLStore({
     clearExpired: true,
@@ -40,19 +41,6 @@ app.use(session({
     }
 }));
 
-
-//세션 확인
-app.get('/check-session', (req, res) => {
-    if (req.session && req.session.isLoggedIn) {
-        // 세션에 로그인 정보가 있다면
-        userId = req.session.passport.user.user_id;
-        userName = req.session.passport.user.username;
-        res.status(200).json({ isLoggedIn: true, userId, userName });
-    } else {
-        // 세션에 로그인 정보가 없다면
-        res.status(200).json({ isLoggedIn: false });
-    }
-});
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -111,7 +99,6 @@ app.put('/userinfo', async (req, res) => {
     const { nickname, currentPassword, newPassword } = req.body;
     const memberId = req.session.memberId;
     
-    // 닉네임과 비밀번호 중 변경사항이 있는지 확인
     const isNicknameChanged = nickname !== undefined && nickname !== req.session.nickname;
     const isPasswordChanged = newPassword !== undefined && newPassword.trim() !== '';
 
@@ -123,19 +110,16 @@ app.put('/userinfo', async (req, res) => {
         let updateQuery = 'UPDATE users SET';
         const updateValues = [];
 
-        // 1. 닉네임 변경 로직
         if (isNicknameChanged) {
             updateQuery += ' nickname = ?,';
             updateValues.push(nickname);
         }
 
-        // 2. 비밀번호 변경 로직
         if (isPasswordChanged) {
             if (!currentPassword) {
                 return res.status(400).json({ message: '비밀번호를 변경하려면 현재 비밀번호를 입력해야 합니다.' });
             }
 
-            // DB에서 기존 비밀번호를 가져와서 비교
             const [rows] = await promisePool.execute(
                 'SELECT password FROM users WHERE user_name = ?',
                 [memberId]
@@ -151,16 +135,13 @@ app.put('/userinfo', async (req, res) => {
                 return res.status(400).json({ message: '현재 비밀번호가 일치하지 않습니다.' });
             }
 
-            // 새 비밀번호 암호화
             const hashedNewPassword = await bcrypt.hash(newPassword, 10);
             updateQuery += ' password = ?,';
             updateValues.push(hashedNewPassword);
         }
 
-        // 마지막 쉼표 제거
         updateQuery = updateQuery.slice(0, -1);
         
-        // WHERE 절 추가
         updateQuery += ' WHERE user_name = ?';
         updateValues.push(memberId);
         
@@ -170,7 +151,6 @@ app.put('/userinfo', async (req, res) => {
             return res.status(404).json({ message: '사용자를 찾을 수 없습니다.' });
         }
 
-        // 세션 정보 업데이트
         if (isNicknameChanged) {
             req.session.nickname = nickname;
         }
@@ -183,11 +163,62 @@ app.put('/userinfo', async (req, res) => {
 });
 
 
+app.delete('/withdrawal', async (req, res) => {
+    if (!req.session || !req.session.memberId) {
+        return res.status(401).json({ message: '로그인이 필요합니다.' });
+    }
+
+    const { password } = req.body;
+    const memberId = req.session.memberId;
+
+    if (!password) {
+        return res.status(400).json({ message: '비밀번호를 입력해야 합니다.' });
+    }
+
+    try {
+        const [rows] = await promisePool.execute(
+            'SELECT password FROM users WHERE user_name = ? AND status = "active"',
+            [memberId]
+        );
+
+        const user = rows[0];
+        if (!user) {
+            return res.status(404).json({ message: '사용자를 찾을 수 없습니다.' });
+        }
+        
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
+            return res.status(400).json({ message: '비밀번호가 일치하지 않습니다.' });
+        }
+
+        const [result] = await promisePool.execute(
+            'UPDATE users SET status = "inactive" WHERE user_name = ?',
+            [memberId]
+        );
+
+        if (result.affectedRows === 0) {
+            return res.status(500).json({ message: '회원 탈퇴 처리 중 오류가 발생했습니다.' });
+        }
+
+        req.session.destroy((err) => {
+            if (err) {
+                console.error('세션 파괴 중 오류 발생:', err);
+                return res.status(500).json({ message: '회원 탈퇴는 성공했으나, 로그아웃 처리 중 오류가 발생했습니다.' });
+            }
+            res.clearCookie('connect.sid');
+            res.status(200).json({ message: '회원 탈퇴가 완료되었습니다. 이용해 주셔서 감사합니다.' });
+        });
+
+    } catch (err) {
+        console.error('회원 탈퇴 처리 중 오류 발생:', err);
+        res.status(500).json({ message: '서버 오류가 발생했습니다.' });
+    }
+});
+
 const signupRouter = require('./signup');
 const loginRouter = require('./login');
 const logoutRouter = require('./logout');
 const boardRouter = require('./controller/boardcontroller');
-
 
 app.use('/signup', signupRouter);
 app.use('/login', loginRouter);

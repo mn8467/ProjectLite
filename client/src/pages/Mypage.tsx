@@ -93,7 +93,6 @@ const Mypage = () => {
     memberId: '',
     nickname: '',
   });
-  // ⭐️ [추가] 비밀번호 상태 관리
   const [passwords, setPasswords] = useState({
       currentPassword: '',
       newPassword: ''
@@ -124,7 +123,6 @@ const Mypage = () => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    // ⭐️ [수정] 입력 필드에 따라 상태 업데이트 로직 분리
     if (name === 'nickname') {
         setUserInfo(prevInfo => ({ ...prevInfo, [name]: value }));
         setIsNicknameAvailable(null);
@@ -166,21 +164,18 @@ const Mypage = () => {
   };
 
   const handleConfirm = async () => {
-    // 닉네임 변경이 없거나, 중복 확인이 완료되지 않았을 경우
     const isNicknameChanged = userInfo.nickname !== originalNickname;
     if (isNicknameChanged && isNicknameAvailable !== true) {
         alert('닉네임 중복 확인을 먼저 완료해 주세요.');
         return;
     }
 
-    // 비밀번호 변경이 있을 경우 현재 비밀번호 필수
     const isPasswordChanged = passwords.newPassword.trim() !== '';
     if (isPasswordChanged && passwords.currentPassword.trim() === '') {
         alert('새 비밀번호를 설정하려면 현재 비밀번호를 입력해야 합니다.');
         return;
     }
     
-    // 닉네임과 비밀번호 모두 변경이 없을 경우
     if (!isNicknameChanged && !isPasswordChanged) {
         alert('수정된 정보가 없습니다.');
         return;
@@ -197,15 +192,17 @@ const Mypage = () => {
 
         if (response.status === 200) {
             alert('회원 정보가 수정되었습니다!');
-            // 성공 시 상태 초기화
             setOriginalNickname(userInfo.nickname);
             setIsNicknameAvailable(null);
             setPasswords({ currentPassword: '', newPassword: '' });
+            navigate('/home');
         }
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error('회원 정보 수정 실패', error);
-        // 서버에서 보낸 에러 메시지 표시
-        const message = error.response?.data?.message || '회원 정보 수정에 실패했습니다.';
+        let message = '회원 정보 수정에 실패했습니다.';
+        if (axios.isAxiosError(error)) {
+            message = error.response?.data?.message || message;
+        }
         alert(message);
     }
   };
@@ -215,6 +212,7 @@ const Mypage = () => {
     setIsNicknameAvailable(null);
     setPasswords({ currentPassword: '', newPassword: '' });
     alert('수정이 취소되었습니다.');
+    navigate('/home');
   };
 
   const handleDeleteRedirect = () => {

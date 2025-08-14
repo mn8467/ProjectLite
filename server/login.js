@@ -1,68 +1,84 @@
 // login.js
 const express = require('express');
-const login = express.Router();
+const router = express.Router();
 const bcrypt = require('bcrypt');
-const passport = require('passport');
-const LocalStrategy = require('passport-local');
 const { promisePool } = require('./db');
+const passport = require('passport');
+const LocalStrategy = require('passport-local').Strategy;
 
-passport.use(new LocalStrategy(
-    async function(username, password, done) {
-        try {
-            // 로그인 아이디 컬럼인 `user_name`으로 사용자를 조회
-            const [rows] = await promisePool.execute(
-                'SELECT user_id, user_name, nickname, password FROM users WHERE user_name = ?',
-                [username]
-            );
+passport.use(new LocalStrategy({
+    usernameField: 'memberId',
+    passwordField: 'password'
+}, async (memberId, password, done) => {
+    try {
+        const [rows] = await promisePool.execute(
+            'SELECT user_name, password, nickname, status FROM users WHERE user_name = ?',
+            [memberId]
+        );
 
-            const user = rows[0];
+        const user = rows[0];
 
-            if (!user) {
-                return done(null, false, { message: '아이디가 존재하지 않습니다.' });
-            }
-
-            const isMatch = await bcrypt.compare(password, user.password);
-
-            if (!isMatch) {
-                return done(null, false, { message: '비밀번호가 일치하지 않습니다.' });
-            }
-            
-            return done(null, { user_id: user.user_id, user_name: user.user_name, nickname: user.nickname });
-        } catch (err) {
-            return done(err);
+        if (!user) {
+            return done(null, false, { message: '존재하지 않는 아이디입니다.' });
         }
+        
+        if (user.status === 'inactive') {
+            return done(null, false, { message: '탈퇴한 회원입니다.' });
+        }
+
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
+            return done(null, false, { message: '비밀번호가 일치하지 않습니다.' });
+        }
+
+        return done(null, user);
+    } catch (err) {
+        return done(err);
     }
-));
+}));
 
-passport.serializeUser(function(user, cb) {
-    process.nextTick(function() {
-        cb(null, { user_name: user.user_name, nickname: user.nickname });
-    });
+passport.serializeUser((user, done) => {
+    done(null, user.user_name);
 });
 
-passport.deserializeUser(function(user, cb) {
-    process.nextTick(function() {
-        return cb(null, user);
-    });
-}); 
-
-login.post('/', passport.authenticate('local', {
-    failureRedirect: '/login',
-    failureMessage: true
-}), (req, res) => {
-    req.session.isLoggedIn = true;
-    // 세션의 `memberId`에 로그인 아이디인 `user_name` 값을 저장
-    req.session.memberId = req.user.user_name; 
-    req.session.nickname = req.user.nickname;
-    
-    console.log('로그인 후 세션:', req.session)
-    req.session.save((err) => {
-        if (err) {
-            console.error('세션 저장 실패:', err);
-            return res.status(500).json({ success: false, message: '세션 저장에 실패했습니다.' });
+passport.deserializeUser(async (memberId, done) => {
+    try {
+        const [rows] = await promisePool.execute(
+            'SELECT user_name, nickname, status FROM users WHERE user_name = ?',
+            [memberId]
+        );
+        const user = rows[0];
+        
+        if (user && user.status === 'inactive') {
+            return done(null, false);
         }
-        res.status(200).json({ success: true, message: '로그인 성공!' });
-    });
+        
+        done(null, user);
+    } catch (err) {
+        console.error('사용자 세션 역직렬화 중 오류 발생:', err);
+        done(err);
+    }
 });
 
-module.exports = login;
+router.post('/', (req, res, next) => {
+    passport.authenticate('local', (err, user, info) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).json({ success: false, message: '서버 오류가 발생했습니다.' });
+        }
+        if (!user) {
+            return res.status(401).json({ success: false, message: info.message });
+        }
+        req.logIn(user, (err) => {
+            if (err) {
+                console.error(err);
+                return res.status(500).json({ success: false, message: '로그인 처리 중 오류가 발생했습니다.' });
+            }
+            req.session.memberId = user.user_name;
+            req.session.nickname = user.nickname;
+            return res.status(200).json({ success: true, message: '로그인에 성공했습니다.', user: user });
+        });
+    })(req, res, next);
+});
+
+module.exports = router;

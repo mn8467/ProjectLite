@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import { useState, useEffect } from 'react';
+import axios from 'axios';
 import AppTopstrip from '../components/AppTopstrip';
 import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
@@ -45,11 +46,11 @@ const formStyles = {
     fontWeight: 'bold'
   },
   deleteButton: {
-    backgroundColor: '#dc3545', // 빨간색 계열
+    backgroundColor: '#dc3545',
     color: 'white'
   },
   cancelButton: {
-    backgroundColor: '#6c757d', // 회색 계열
+    backgroundColor: '#6c757d',
     color: 'white'
   }
 };
@@ -57,20 +58,67 @@ const formStyles = {
 const Withdrawal = () => {
   const navigate = useNavigate();
   const [password, setPassword] = useState('');
+  const [memberId, setMemberId] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
 
-  const handleDelete = () => {
-    if (window.confirm('정말로 회원탈퇴를 하시겠습니까?')) {
-      // TODO: 여기에 서버로 탈퇴 요청을 보내는 API 호출 로직을 작성합니다.
-      console.log("회원탈퇴 요청", { password });
-      alert('회원탈퇴가 완료되었습니다.');
-      // 탈퇴 후 홈 페이지로 이동
-      navigate('/');
+  useEffect(() => {
+    const fetchMemberId = async () => {
+      try {
+        const response = await axios.get('http://localhost:8080/userinfo', {
+          withCredentials: true
+        });
+        setMemberId(response.data.memberId);
+        setIsLoading(false);
+      } catch (error) {
+        console.error('사용자 ID를 가져오는 데 실패했습니다.', error);
+        alert('로그인이 필요합니다.');
+        navigate('/login');
+      }
+    };
+    fetchMemberId();
+  }, [navigate]);
+
+  const handleDelete = async () => {
+    if (password.trim() === '') {
+      alert('비밀번호를 입력해주세요.');
+      return;
+    }
+
+    if (!window.confirm('정말로 회원탈퇴를 하시겠습니까?')) {
+      return;
+    }
+    
+    try {
+        const response = await axios.delete('http://localhost:8080/withdrawal', {
+            data: { password: password },
+            withCredentials: true
+        });
+
+        if (response.status === 200) {
+            alert(response.data.message);
+            navigate('/home');
+        }
+    } catch (error: unknown) {
+        console.error('회원 탈퇴 실패', error);
+        let message = '회원 탈퇴에 실패했습니다.';
+        if (axios.isAxiosError(error)) {
+            message = error.response?.data?.message || message;
+        }
+        alert(message);
     }
   };
 
   const handleCancel = () => {
-    navigate('/');
+    navigate('/home');
   };
+
+  if (isLoading) {
+    return (
+      <div style={{ textAlign: 'center', marginTop: '50px' }}>
+        <h2>회원 정보를 불러오는 중...</h2>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -90,7 +138,7 @@ const Withdrawal = () => {
               <input
                 type="text"
                 name="memberId"
-                value="king123" // 로그인한 사용자의 ID로 변경해야 함
+                value={memberId}
                 readOnly
                 style={{...formStyles.input, ...formStyles.readOnlyInput}}
               />
