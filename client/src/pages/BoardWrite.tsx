@@ -1,16 +1,39 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Container, Card, Form, Button, Alert } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import CheckLogin from '../components/CheckLogin'; // 로그인 상태를 확인하는 훅을 임포트합니다.
+import axios from 'axios';
 
 
 const BoardWrite: React.FC = () => {
-    const { isLoggedIn, isLoading, setIsLoggedIn,setUserId , setNickname } = CheckLogin();
+    const { isLoggedIn, isLoading, setIsLoggedIn ,memberId,setMemberId,nickname,setNickname } = CheckLogin();
     const [title, setTitle] = useState<string>('');
     const [content, setContent] = useState<string>('');
     const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
     const [message, setMessage] = useState<{ text: string, type: 'success' | 'danger' } | null>(null);
-    
+
+    //먼저 세션에서 로그인 상태, memberId, nickname을 가져온다
+   useEffect(() => {
+  const fetchSession = async () => {
+    try {
+      const response = await axios.get('http://localhost:8080/check-session', { withCredentials: true });
+      if (response.data.isLoggedIn) {
+        setIsLoggedIn(true);
+        setMemberId(response.data.memberId);
+        setNickname(response.data.nickname);
+      } else {
+        setIsLoggedIn(false);
+      }
+    } catch (e) {
+      console.error('세션 확인 중 오류:', e);
+      setIsLoggedIn(false);
+    }
+  };
+  fetchSession();
+}, []);
+
+
+// 글작성 다하면 제출하는 버튼    
     const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -20,7 +43,7 @@ const BoardWrite: React.FC = () => {
     setMessage(null);
 
     const userBoardData = {
-        user_id: setUserId,
+        memberId: setMemberId,
         nickname: setNickname,
         title: title,
         content: content
@@ -60,7 +83,7 @@ const BoardWrite: React.FC = () => {
                 <Form onSubmit={handleSubmit}>
                     <Form.Group className="mb-3" controlId="boardTitle">
                         <Form.Label>제목</Form.Label>
-                        <a>  작성자 : {} </a>
+                        <a>  작성자 : {nickname } </a>
                         <Form.Control
                             type="text"
                             value={title}
