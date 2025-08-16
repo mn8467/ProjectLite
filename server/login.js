@@ -76,6 +76,7 @@ router.post('/', (req, res, next) => {
             }
             req.session.memberId = user.user_name;
             req.session.nickname = user.nickname;
+                req.session.isLoggedIn = true;
             return res.status(200).json({ success: true, message: '로그인에 성공했습니다.', user: user });
         });
     })(req, res, next);

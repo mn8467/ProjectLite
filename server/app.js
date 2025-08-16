@@ -48,6 +48,8 @@ app.use(express.urlencoded({ extended: false }));
 app.use(passport.initialize());
 app.use(passport.session());
 
+
+
 app.get('/userinfo', (req, res) => {
     if (req.session && req.session.memberId) {
         const user = {
@@ -212,6 +214,19 @@ app.delete('/withdrawal', async (req, res) => {
     } catch (err) {
         console.error('회원 탈퇴 처리 중 오류 발생:', err);
         res.status(500).json({ message: '서버 오류가 발생했습니다.' });
+    }
+});
+
+//세션 확인
+app.get('/check-session', (req, res) => {
+    if (req.session && req.session.isLoggedIn) {
+        // 세션에 로그인 정보가 있다면
+        memberId = req.session.memberId;
+        nickname = req.session.nickname;
+        res.status(200).json({ isLoggedIn: true, memberId, nickname });
+    } else {
+        // 세션에 로그인 정보가 없다면
+        res.status(200).json({ isLoggedIn: false });
     }
 });
 
