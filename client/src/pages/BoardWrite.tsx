@@ -43,14 +43,13 @@ const BoardWrite: React.FC = () => {
     setMessage(null);
 
     const userBoardData = {
-        memberId: setMemberId,
-        nickname: setNickname,
-        title: title,
-        content: content
-    };
+    user_id: memberId,  // ✅ 실제 값 , set 함수값을 보내면안됨!
+    title,
+    content
+};
 
     try {
-        const response = await fetch('http://localhost:8080/board/write-data', {
+        const response = await fetch('http://localhost:8080/board/articles', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

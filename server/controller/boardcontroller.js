@@ -3,7 +3,7 @@ const board = express.Router();
 
 // BoardService 모듈을 불러옵니다.
 // 이 라우터는 서비스에 의존하며, 직접 데이터베이스에 접근하지 않습니다.
-const { getBoard,getBoardDetail } = require('../service/boardservice');
+const { getBoard,getBoardDetail, createBoard } = require('../service/boardservice');
 
 // [GET] / 요청에 대한 핸들러.
 // 이 파일은 라우터이면서 컨트롤러의 역할도 함께 수행합니다.
@@ -18,6 +18,16 @@ board.get('/', async (req, res) => {
     }
 });
 
+board.post('/articles',async (req,res)=>{
+    try{
+        const boardWrite = await createBoard();
+        res.status(200).json(boardWrite);
+
+    } catch(error){
+        console.error('게시판 작성중 오류가 발생했습니다',error);
+        res.status(500).json({error: '게시판 작성하던 중 오류가 발생했습니다'})
+    }
+});
 
 board.get('/:id', async (req, res) => {
     const boardId = parseInt(req.params.id, 10); // 가져온 문자를 10진수 정수로 변환하여 숫자값으로 처리
